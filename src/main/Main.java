@@ -3,11 +3,16 @@ package main;
 import java.io.File;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -22,7 +27,7 @@ public class Main extends Application {
     public void start(Stage window) throws Exception {
         window.setTitle("Pokémon Solo Run Router");
         window.setMinHeight(300);
-        window.setMinWidth(400);
+        window.setMinWidth(600);
 
         // Set behavior for closing the program
         window.setOnCloseRequest(e -> {
@@ -33,17 +38,18 @@ public class Main extends Application {
         // Create the layout for the window in a BorderPane 
         BorderPane mainWindowLayout = new BorderPane();
 
+        // Initialize the tab pane in the middle of the screen
+        TabPane routeTabs = new TabPane();
+        routeTabs.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+        mainWindowLayout.setCenter(routeTabs);
+
         // Initialize the tree structure that displays routes on the left of the layout
-        TreeView<String> routeTree = generateRouteTree();
+        TreeView<String> routeTree = generateRouteTree(routeTabs);
+        mainWindowLayout.setLeft(routeTree);
 
         // Initialize the menu bar for the top of the layout
         MenuBar menuBar = generateMenu(window);
         mainWindowLayout.setTop(menuBar);
-        mainWindowLayout.setLeft(routeTree);
-
-        /*
-         * Create the left portion of the menu. 
-         */
 
         // Initialize the main scene using mainWindowLayout
         Scene scene = new Scene(mainWindowLayout, 1024, 768);
@@ -85,7 +91,7 @@ public class Main extends Application {
     /*
      * Initializes a tree that shows the routes that have been created 
      */
-    private TreeView<String> generateRouteTree() {    
+    private TreeView<String> generateRouteTree(TabPane routeTabs) {    
         TreeItem<String> routeList = new TreeItem<>("Routes");
         routeList.setExpanded(true);
 
@@ -102,6 +108,27 @@ public class Main extends Application {
         // Initialize the tree with the root TreeItem and return it
         TreeView<String> routeTree = new TreeView<>(routeList);
         routeTree.setMinWidth(75);
+        routeTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            
+            @Override
+            public void handle(MouseEvent event) {
+
+                // Handle double click events by opening the route into the TabPane
+                if(event.getClickCount() == 2) {
+                    TreeItem<String> item = routeTree.getSelectionModel().getSelectedItem();
+                    try {
+                        TreeItem<String> parent = item.getParent();
+                        if (item.isLeaf()) {
+                            String tabName = parent.getValue();
+                            tabName = tabName.substring(0, tabName.length() - 7) + ": " + item.getValue();
+                            loadNewRoute(routeTabs, tabName);
+                        }
+                    }
+                    catch (Exception e) {}
+                }
+            }
+            
+        });
         return routeTree;
     }
 
@@ -126,6 +153,29 @@ public class Main extends Application {
             routeName = routeName.substring(4, routeName.length() - 4);
             createRouteBranch(routeName, parent);
         }
+    }
+
+    /*
+     * Load a new route into the tab pane if it is not already loaded
+     * Set the new tab to be the active tab
+     */
+    private void loadNewRoute(TabPane routes, String routeName) {
+        
+        /* 
+         * Check if the route is already open
+         * If so, set it to be the focused route
+         */
+        for (Tab tab : routes.getTabs()) {
+            if (tab.getText().equals(routeName)) {
+                routes.getSelectionModel().select(tab);
+                return;
+            }
+        }
+
+        // Open the tab and set the focus to the new route
+        Tab newTab = new Tab(routeName);
+        routes.getTabs().add(newTab);
+        routes.getSelectionModel().select(newTab);
     }
 
     /*

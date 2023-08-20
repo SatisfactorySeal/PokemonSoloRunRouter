@@ -17,6 +17,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+//import java.sql.Connection;
+//import java.sql.DriverManager;
+//import java.sql.SQLException;
+
 public class Main extends Application {
 
     public static void main(String[] args) {
@@ -38,9 +42,10 @@ public class Main extends Application {
         // Create the layout for the window in a BorderPane 
         BorderPane mainWindowLayout = new BorderPane();
 
-        // Initialize the tab pane in the middle of the screen
+        // Initialize the tab pane in the middle of the screen and set properties
         TabPane routeTabs = new TabPane();
         routeTabs.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+        routeTabs.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         mainWindowLayout.setCenter(routeTabs);
 
         // Initialize the tree structure that displays routes on the left of the layout

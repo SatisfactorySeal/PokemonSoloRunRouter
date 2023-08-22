@@ -5,7 +5,7 @@
             "type": "java",
             "name": "Main",
             "request": "launch",
-            "mainClass": "main.Main",
+            "mainClass": "router.Main",
             "projectName": "PokemonSoloRunRouter_dd5059bd",
             "vmArgs": "--module-path C:/Users/jd984/javafx-sdk-20.0.2/lib --add-modules javafx.controls,javafx.fxml",
         }

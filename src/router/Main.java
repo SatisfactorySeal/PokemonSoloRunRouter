@@ -1,6 +1,7 @@
-package main;
+package router;
 
 import java.io.File;
+import java.sql.SQLException;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -17,13 +18,20 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.SQLException;
-
 public class Main extends Application {
 
-    public static void main(String[] args) {
+    final static String[] typeNames = {"nullType", "Bug", "Dragon", "Electric", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", 
+                                "Ice", "Normal", "Poison", "Psychic", "Rock", "Water", "Dark", "Steel", "Fairy"};
+
+    public static void main(String[] args){
+        // temporary command to make sure DatabaseConnection works before writing start of routing code  
+        for (int i = 1; i <= 151; i++) {
+            try {
+                System.out.println(typeNames[DatabaseConnection.getPokemonType2(i, 1)]);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         launch(args);
     }
 

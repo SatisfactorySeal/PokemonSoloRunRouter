@@ -14,7 +14,7 @@ public class DatabaseConnection {
 
     // Load the database for the generation provided
     private static void loadDatabase(int gen) throws SQLException {
-        conn = DriverManager.getConnection("jdbc:sqlite:resources\\pokemonData\\gen" + gen + "Data.db");
+        conn = DriverManager.getConnection("jdbc:sqlite:resources\\pokemonData\\pokemonData.db");
         stat = conn.createStatement();
     }
 
@@ -37,13 +37,20 @@ public class DatabaseConnection {
         }
     }
 
-    // Retrieve data from the provided column and ID from the appropriate database
+    // Retrieve data from the provided column and ID from the appropriate database table
     // This is going to have to be reworked when I change the database structure in the future
     private static String getPokemonData(int ID, int gen, String columnName) throws SQLException {
-        if (gen != 1) return "failure";   // will change when data for future gens is added
+        if (gen > 5 || gen < 0) return "failure";
+        String tableName = "";
+        if (gen == 1) {
+            tableName = "rbyStats";
+        }
+        else if (gen <= 5) {
+            tableName = "bwStats";
+        }
         try {
             loadDatabase(gen);
-            rs = stat.executeQuery("Select " + columnName + " FROM rbyStats WHERE ID = " + ID);
+            rs = stat.executeQuery("Select " + columnName + " FROM " + tableName + " WHERE ID = " + ID);
             while (rs.next()) {
                 return rs.getString(columnName);
             }

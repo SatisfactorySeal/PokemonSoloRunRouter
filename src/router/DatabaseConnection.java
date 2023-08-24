@@ -8,12 +8,12 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
 
-    static Connection conn;
-    static Statement stat;
-    static ResultSet rs;
+    private static Connection conn;
+    private static Statement stat;
+    private static ResultSet rs;
 
     // Load the database for the generation provided
-    private static void loadDatabase(int gen) throws SQLException {
+    private static void loadDatabase() throws SQLException {
         conn = DriverManager.getConnection("jdbc:sqlite:resources\\pokemonData\\pokemonData.db");
         stat = conn.createStatement();
     }
@@ -49,7 +49,7 @@ public class DatabaseConnection {
             tableName = "bwStats";
         }
         try {
-            loadDatabase(gen);
+            loadDatabase();
             rs = stat.executeQuery("Select " + columnName + " FROM " + tableName + " WHERE ID = " + ID);
             while (rs.next()) {
                 return rs.getString(columnName);
@@ -62,6 +62,27 @@ public class DatabaseConnection {
             closeDatabase();
         }
         return "failure";
+    }
+
+    /*
+     * Retrieve the Pokemon ID for a given name and generation (right now just gen 1 for testing)
+     * Returns 0 if the ID cannot be found for any reason 
+     */
+    public static int getPokemonIDFromName(String name, int gen) throws SQLException {
+        String result = "failure";
+        try {
+            loadDatabase();
+            System.out.println(name);
+            rs = stat.executeQuery("Select ID FROM rbyStats WHERE Name = '" + name + "'");
+            while (rs.next()) {
+                result = rs.getString("ID");
+            }
+        } catch (SQLException e) { }
+        finally {
+            closeDatabase();
+        }
+        if (result == "failure") return 0;
+        return Integer.parseInt(result);
     }
 
     /*

@@ -68,7 +68,7 @@ public class DatabaseConnection {
      * Retrieve the Pokemon ID for a given name and generation (right now just gen 1 for testing)
      * Returns 0 if the ID cannot be found for any reason 
      */
-    public static int getPokemonIDFromName(String name, int gen) throws SQLException {
+    public static String getPokemonIDFromName(String name, int gen) throws SQLException {
         String result = "failure";
         try {
             loadDatabase();
@@ -81,8 +81,8 @@ public class DatabaseConnection {
         finally {
             closeDatabase();
         }
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
+        if (result == "failure") return "N/A";
+        return result;
     }
 
     /*

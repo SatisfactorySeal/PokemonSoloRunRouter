@@ -23,15 +23,7 @@ public class Main extends Application {
     final static String[] typeNames = {"nullType", "Bug", "Dragon", "Electric", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", 
                                 "Ice", "Normal", "Poison", "Psychic", "Rock", "Water", "Dark", "Steel", "Fairy"};
 
-    public static void main(String[] args){
-        // temporary command to make sure DatabaseConnection works before writing start of routing code  
-        for (int i = 1; i <= 151; i++) {
-            try {
-                System.out.println(typeNames[DatabaseConnection.getPokemonType2(i, 1)]);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+    public static void main(String[] args) {
         launch(args);
     }
 
@@ -172,7 +164,7 @@ public class Main extends Application {
      * Load a new route into the tab pane if it is not already loaded
      * Set the new tab to be the active tab
      */
-    private void loadNewRoute(TabPane routes, String routeName) {
+    private void loadNewRoute(TabPane routes, String routeName) throws SQLException {
         
         /* 
          * Check if the route is already open
@@ -185,10 +177,10 @@ public class Main extends Application {
             }
         }
 
-        // Open the tab and set the focus to the new route
-        Tab newTab = new Tab(routeName);
-        routes.getTabs().add(newTab);
-        routes.getSelectionModel().select(newTab);
+        // Create a new Route object for the opened route and add its Tab to routes
+        Route newRoute = new Route(routeName);
+        routes.getTabs().add(newRoute.getRouteTab());
+        routes.getSelectionModel().select(newRoute.getRouteTab());
     }
 
     /*

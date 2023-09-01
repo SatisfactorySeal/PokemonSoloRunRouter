@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class DatabaseConnection {
 
@@ -72,7 +73,6 @@ public class DatabaseConnection {
         String result = "failure";
         try {
             loadDatabase();
-            System.out.println(name);
             rs = stat.executeQuery("Select ID FROM rbyStats WHERE Name = '" + name + "'");
             while (rs.next()) {
                 result = rs.getString("ID");
@@ -124,95 +124,37 @@ public class DatabaseConnection {
         return Integer.parseInt(result);
     }
 
-    /*
-     * Retrieve the Pokemon base HP stat for a given ID and generation
-     * Returns 0 if the stat cannot be found for any reason
-     */
-    public static int getPokemonBaseHP(int ID, int gen) throws SQLException {
-        String result = getPokemonData(ID, gen, "BaseHP");
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
+    public static ArrayList<DisplayedMove> getLevelUpMoves(int ID, int gen) throws SQLException {
+        ArrayList<DisplayedMove> levelUpMoveList = new ArrayList<DisplayedMove>();
+
+        // table names for SQL select command, will add more functionality when future generations are added to database
+        String movesetTableName = "rbyMovesets";
+        String moveTableName = "rbyMoves";
+
+        try {
+            loadDatabase();
+            rs = stat.executeQuery("Select * FROM " + movesetTableName + " AS MS INNER JOIN " 
+                                    + moveTableName + " AS M ON MS.MoveID = M.ID "
+                                    + "WHERE MS.PokemonID = " + ID + " AND MS.Method = 'Level'"
+                                    + " ORDER BY MS.Condition");
+            while (rs.next()) {
+                DisplayedMove temp = new DisplayedMove(rs.getString("Method"), 
+                                                        rs.getString("Condition"), 
+                                                        rs.getString("Move"), 
+                                                        Main.typeNames[rs.getInt("Type")], 
+                                                        rs.getString("Power"), 
+                                                        rs.getString("Accuracy"), 
+                                                        rs.getInt("PP"));
+
+                levelUpMoveList.add(temp);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeDatabase();
+        }
+
+        return levelUpMoveList;
     }
-
-    /*
-     * Retrieve the Pokemon base attack stat for a given ID and generation
-     * Returns 0 if the stat cannot be found for any reason
-     */
-    public static int getPokemonBaseAttack(int ID, int gen) throws SQLException {
-        String result = getPokemonData(ID, gen, "BaseAtk");
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
-    }
-
-    /*
-     * Retrieve the Pokemon base defense stat for a given ID and generation
-     * Returns 0 if the stat cannot be found for any reason
-     */
-    public static int getPokemonBaseDefense(int ID, int gen) throws SQLException {
-        String result = getPokemonData(ID, gen, "BaseDef");
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
-    }
-
-    /*
-     * Retrieve the Pokemon base speed stat for a given ID and generation
-     * Returns 0 if the stat cannot be found for any reason
-     */
-    public static int getPokemonBaseSpeed(int ID, int gen) throws SQLException {
-        String result = getPokemonData(ID, gen, "BaseSpe");
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
-    }
-
-    /*
-     * Retrieve the Pokemon base special attack stat for a given ID and generation
-     * Returns 0 if the stat cannot be found for any reason
-     * Note: In generation 1, special attack and special defense are combined into one stat: special
-     */
-    public static int getPokemonBaseSpecialAttack(int ID, int gen) throws SQLException {
-        String result;
-        if (gen == 1) result = getPokemonData(ID, gen, "BaseSpc");
-        else result = getPokemonData(ID, gen, "BaseSpA");
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
-    }
-
-    /*
-     * Retrieve the Pokemon base special defense stat for a given ID and generation
-     * Returns 0 if the stat cannot be found for any reason
-     * Note: In generation 1, special attack and special defense are combined into one stat: special
-     */
-    public static int getPokemonBaseSpecialDefense(int ID, int gen) throws SQLException {
-        String result;
-        if (gen == 1) result = getPokemonData(ID, gen, "BaseSpc");
-        else result = getPokemonData(ID, gen, "BaseSpD");
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
-    }
-
-    // Eventually add a function to retrieve all base stats at once, not always good reason to do it separately
-    // public static int[] getPokemonBaseStats(int ID, int gen) throws SQLException {}
-
-    /*
-     * Retrieve the Pokemon experience group for a given ID and generation
-     * Returns "Medium Fast" as the default if exp group cannot be found for any reason
-     */
-    public static String getPokemonExperienceGroup(int ID, int gen) throws SQLException {
-        String result = getPokemonData(ID, gen, "ExpGroup");
-        if (result == "failure") return "Medium Fast";
-        return result;
-    }
-
-    /*
-     * Retrieve the Pokemon base experience yield for a given ID and generation
-     * Returns 0 if the stat cannot be found for any reason
-     */
-    public static int getPokemonExperienceYield(int ID, int gen) throws SQLException {
-        String result = getPokemonData(ID, gen, "ExpYield");
-        if (result == "failure") return 0;
-        return Integer.parseInt(result);
-    }
-
-    // Later: add ways to obtain base form and evolution methods
 
 }

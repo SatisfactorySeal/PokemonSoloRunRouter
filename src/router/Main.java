@@ -2,6 +2,8 @@ package router;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -22,6 +24,7 @@ public class Main extends Application {
 
     final static String[] typeNames = {"nullType", "Bug", "Dragon", "Electric", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", 
                                 "Ice", "Normal", "Poison", "Psychic", "Rock", "Water", "Dark", "Steel", "Fairy"};
+    Map<Tab, Route> routeTabMap = new HashMap<Tab, Route>();
 
     public static void main(String[] args) {
         launch(args);
@@ -181,6 +184,10 @@ public class Main extends Application {
         Route newRoute = new Route(routeName);
         routes.getTabs().add(newRoute.getRouteTab());
         routes.getSelectionModel().select(newRoute.getRouteTab());
+        routeTabMap.put(newRoute.getRouteTab(), newRoute);
+
+        // Set tab closing behavior
+        newRoute.getRouteTab().setOnCloseRequest(e -> closeTab(newRoute.getRouteTab()));
     }
 
     /*
@@ -190,6 +197,17 @@ public class Main extends Application {
     private void closeProgram(Stage window) {
         boolean confirmation = true;            // will add more functionality to this later
         if (confirmation) window.close();
+    }
+
+    /*
+     * A function that closes a tab in the routeTabs TabPane. 
+     * It currently just closes the tab with no action, but will later prompt the user to save changes to the route.
+     */
+    private void closeTab(Tab closingTab) {
+        /*
+         * Add something here later to save the route
+         */
+        routeTabMap.remove(closingTab);
     }
 
 }

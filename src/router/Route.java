@@ -1,10 +1,10 @@
 package router;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-//import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
@@ -17,8 +17,8 @@ public class Route {
     private Tab routeTab;
     private BorderPane tabLayout;
     private VBox moveListHolder;
-    private Label moveListLabel;
-    //private TableView moveListDisplay;
+    private Label levelUpMoveLabel;
+    private ArrayList<DisplayedMove> levelUpMoveList;
     /*
      * things that the route needs to have
      * tab (for the main tabpane)
@@ -56,10 +56,23 @@ public class Route {
         routeTab = new Tab(game + ": " + pokemonName);
         tabLayout = new BorderPane();
         moveListHolder = new VBox();
-        moveListLabel = new Label("Moves");
-        moveListHolder.getChildren().add(moveListLabel);
-        tabLayout.setRight(moveListHolder);
+        levelUpMoveLabel = new Label("Level Up Moves");
         routeTab.setContent(tabLayout);
+        moveListHolder.getChildren().add(levelUpMoveLabel);
+        tabLayout.setRight(moveListHolder);
+
+        try {
+            levelUpMoveList = DatabaseConnection.getLevelUpMoves(Integer.parseInt(pokemonID), 1);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        for (DisplayedMove item : levelUpMoveList) {
+            System.out.println(item.getMoveName());
+        }
+
     }
 
     public String getGame() {

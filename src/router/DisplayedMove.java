@@ -21,11 +21,31 @@ public class DisplayedMove {
 
     public DisplayedMove(String method, String methodValue, String moveName,
                             String type, String power, String accuracy, int pp) {
-        this.method = method;
+        switch(method) {
+            case "1":
+                this.method = "TM";
+                break;
+            case "2":
+                this.method = "HM";
+                break;
+            case "3":
+                this.method = "Tutor";
+                break;
+            case "4":
+                this.method = "Transfer";
+                break;
+            case "5":
+                this.method = "Event";
+                break;
+            case "0":
+            default:
+                this.method = "Level";
+                break;
+        }
 
         if (this.method.equals("TM") || this.method.equals("HM")) {
-            if (methodValue.length() == 1) this.methodValue = method + "0" + methodValue;
-            else this.methodValue = method + methodValue;
+            if (methodValue.length() == 1) this.methodValue = this.method + "0" + methodValue;
+            else this.methodValue = this.method + methodValue;
         }
         else this.methodValue = methodValue;
         

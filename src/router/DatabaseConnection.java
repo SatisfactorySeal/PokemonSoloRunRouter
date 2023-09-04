@@ -124,8 +124,8 @@ public class DatabaseConnection {
         return Integer.parseInt(result);
     }
 
-    public static ArrayList<DisplayedMove> getLevelUpMoves(int ID, int gen) throws SQLException {
-        ArrayList<DisplayedMove> levelUpMoveList = new ArrayList<DisplayedMove>();
+    public static ArrayList<DisplayedMove> getPokemonMovepool(int ID, int gen) throws SQLException {
+        ArrayList<DisplayedMove> pokemonMovepool = new ArrayList<DisplayedMove>();
 
         // table names for SQL select command, will add more functionality when future generations are added to database
         String movesetTableName = "rbyMovesets";
@@ -135,8 +135,7 @@ public class DatabaseConnection {
             loadDatabase();
             rs = stat.executeQuery("Select * FROM " + movesetTableName + " AS MS INNER JOIN " 
                                     + moveTableName + " AS M ON MS.MoveID = M.ID "
-                                    + "WHERE MS.PokemonID = " + ID + " AND MS.Method = 'Level'"
-                                    + " ORDER BY MS.Condition");
+                                    + "WHERE MS.PokemonID = " + ID + " ORDER BY MS.Method, MS.Condition");
             while (rs.next()) {
                 DisplayedMove temp = new DisplayedMove(rs.getString("Method"), 
                                                         rs.getString("Condition"), 
@@ -146,15 +145,14 @@ public class DatabaseConnection {
                                                         rs.getString("Accuracy"), 
                                                         rs.getInt("PP"));
 
-                levelUpMoveList.add(temp);
+                pokemonMovepool.add(temp);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
+        } catch (SQLException e) { } 
+        finally {
             closeDatabase();
         }
 
-        return levelUpMoveList;
+        return pokemonMovepool;
     }
 
 }

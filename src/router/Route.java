@@ -5,6 +5,9 @@ import java.util.ArrayList;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
@@ -17,8 +20,10 @@ public class Route {
     private Tab routeTab;
     private BorderPane tabLayout;
     private VBox moveListHolder;
-    private Label levelUpMoveLabel;
-    private ArrayList<DisplayedMove> levelUpMoveList;
+    private Label movepoolLabel;
+    private ArrayList<DisplayedMove> movepool;
+    private TableView<DisplayedMove> moveTable;
+
     /*
      * things that the route needs to have
      * tab (for the main tabpane)
@@ -56,22 +61,37 @@ public class Route {
         routeTab = new Tab(game + ": " + pokemonName);
         tabLayout = new BorderPane();
         moveListHolder = new VBox();
-        levelUpMoveLabel = new Label("Level Up Moves");
+        movepoolLabel = new Label("Moves");
         routeTab.setContent(tabLayout);
-        moveListHolder.getChildren().add(levelUpMoveLabel);
         tabLayout.setRight(moveListHolder);
 
         try {
-            levelUpMoveList = DatabaseConnection.getLevelUpMoves(Integer.parseInt(pokemonID), 1);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            movepool = DatabaseConnection.getPokemonMovepool(Integer.parseInt(pokemonID), 1);
+        } catch (NumberFormatException e) { }
+          catch (SQLException e) { }
+
+        moveTable = new TableView<DisplayedMove>();
+        
+        TableColumn<DisplayedMove, String> methodColumn = new TableColumn<DisplayedMove, String>("Way");
+        methodColumn.setCellValueFactory(new PropertyValueFactory<>("methodValue"));
+        
+        TableColumn<DisplayedMove, String> moveColumn = new TableColumn<DisplayedMove, String>("Move");
+        moveColumn.setCellValueFactory(new PropertyValueFactory<>("moveName"));
+
+        TableColumn<DisplayedMove, String> typeColumn = new TableColumn<DisplayedMove, String>("Type");
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
+
+        moveTable.getColumns().add(methodColumn);
+        moveTable.getColumns().add(moveColumn);
+        moveTable.getColumns().add(typeColumn);
+
+        for (DisplayedMove item : movepool) {
+            if (item.getMethod() == "Level" || item.getMethod() == "TM" || item.getMethod() == "HM")
+                moveTable.getItems().add(item);
         }
 
-        for (DisplayedMove item : levelUpMoveList) {
-            System.out.println(item.getMoveName());
-        }
+        moveListHolder.getChildren().add(movepoolLabel);
+        moveListHolder.getChildren().add(moveTable);
 
     }
 

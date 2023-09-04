@@ -3,32 +3,34 @@ package router;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class Route {
 
     private String game;            // the game for the route
+    private int generation;         // the generation the game exists in
     private String pokemonName;     // name of the Pokemon being routed
     private String pokemonID;       // ID of the Pokemon being routed
     private boolean evolution;      // True if evolution allowed in the route
+    private ArrayList<String> evolutionIDs;     // list of IDs of all Pokemon in the evolution line
     private Tab routeTab;
     private BorderPane tabLayout;
     private VBox moveListHolder;
+    private HBox movepoolLabelAndBox;
     private Label movepoolLabel;
     private ArrayList<DisplayedMove> movepool;
     private TableView<DisplayedMove> moveTable;
 
     /*
-     * things that the route needs to have
-     * tab (for the main tabpane)
-     * borderpane (for inside the tab)
-     * vbox (for the move list on the right of the borderpane)
+     * things that need to be added to the route
      * ArrayList or LinkedList of RouteEvent objects
      */
 
@@ -56,17 +58,38 @@ public class Route {
         generateRouteLayout();
     }
 
+    private void setGameGeneration() {
+        switch(game) {
+            case "GSC":
+                generation = 2;
+                break;
+            case "RB":
+            case "Yellow":
+            default:
+                generation = 1;
+                break;
+        }
+    }
+
     private void generateRouteLayout() {
+        setGameGeneration();
+
         evolution = true;
+        if (evolution) {
+            try {
+                evolutionIDs = DatabaseConnection.getEvolutionLineIDs(pokemonID, generation);
+            } catch (SQLException e) { }
+        }
+        else evolutionIDs.add(pokemonID);
+
         routeTab = new Tab(game + ": " + pokemonName);
         tabLayout = new BorderPane();
         moveListHolder = new VBox();
-        movepoolLabel = new Label("Moves");
         routeTab.setContent(tabLayout);
         tabLayout.setRight(moveListHolder);
 
         try {
-            movepool = DatabaseConnection.getPokemonMovepool(Integer.parseInt(pokemonID), 1);
+            movepool = DatabaseConnection.getPokemonMovepool(pokemonID, generation);
         } catch (NumberFormatException e) { }
           catch (SQLException e) { }
 
@@ -90,13 +113,29 @@ public class Route {
                 moveTable.getItems().add(item);
         }
 
-        moveListHolder.getChildren().add(movepoolLabel);
+        // this entire section needs to be commented, with variables renamed and a lot of code cleanup
+        ComboBox<String> comboBox = new ComboBox<String>();
+        for (String item : evolutionIDs) {
+            comboBox.getItems().add(item);
+        }
+        comboBox.getSelectionModel().selectFirst();
+
+        movepoolLabel = new Label("Moves");
+
+        movepoolLabelAndBox = new HBox(10);
+        movepoolLabelAndBox.getChildren().addAll(movepoolLabel, comboBox);
+
+        moveListHolder.getChildren().add(movepoolLabelAndBox);
         moveListHolder.getChildren().add(moveTable);
 
     }
 
     public String getGame() {
         return game;
+    }
+
+    public int getGeneration() {
+        return generation;
     }
 
     public String getPokemonName() {

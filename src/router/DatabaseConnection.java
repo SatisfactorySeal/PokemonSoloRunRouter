@@ -43,25 +43,18 @@ public class DatabaseConnection {
     private static String getPokemonData(int ID, int gen, String columnName) throws SQLException {
         if (gen > 5 || gen < 0) return "failure";
         String tableName = "";
-        if (gen == 1) {
-            tableName = "rbyStats";
-        }
-        else if (gen <= 5) {
-            tableName = "bwStats";
-        }
+        if (gen == 1) tableName = "rbyStats";
+        else if (gen <= 5) tableName = "bwStats";
+
         try {
             loadDatabase();
-            rs = stat.executeQuery("Select " + columnName + " FROM " + tableName + " WHERE ID = " + ID);
+            rs = stat.executeQuery("SELECT " + columnName + " FROM " + tableName + " WHERE ID = " + ID);
             while (rs.next()) {
                 return rs.getString(columnName);
             }
         }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        finally {
-            closeDatabase();
-        }
+        catch (SQLException e) { }
+        finally { closeDatabase(); }
         return "failure";
     }
 
@@ -73,14 +66,12 @@ public class DatabaseConnection {
         String result = "failure";
         try {
             loadDatabase();
-            rs = stat.executeQuery("Select ID FROM rbyStats WHERE Name = '" + name + "'");
+            rs = stat.executeQuery("SELECT ID FROM rbyStats WHERE Name = '" + name + "'");
             while (rs.next()) {
                 result = rs.getString("ID");
             }
         } catch (SQLException e) { }
-        finally {
-            closeDatabase();
-        }
+        finally { closeDatabase(); }
         if (result == "failure") return "N/A";
         return result;
     }
@@ -124,7 +115,7 @@ public class DatabaseConnection {
         return Integer.parseInt(result);
     }
 
-    public static ArrayList<DisplayedMove> getPokemonMovepool(int ID, int gen) throws SQLException {
+    public static ArrayList<DisplayedMove> getPokemonMovepool(String ID, int gen) throws SQLException {
         ArrayList<DisplayedMove> pokemonMovepool = new ArrayList<DisplayedMove>();
 
         // table names for SQL select command, will add more functionality when future generations are added to database
@@ -133,7 +124,7 @@ public class DatabaseConnection {
 
         try {
             loadDatabase();
-            rs = stat.executeQuery("Select * FROM " + movesetTableName + " AS MS INNER JOIN " 
+            rs = stat.executeQuery("SELECT * FROM " + movesetTableName + " AS MS INNER JOIN " 
                                     + moveTableName + " AS M ON MS.MoveID = M.ID "
                                     + "WHERE MS.PokemonID = " + ID + " ORDER BY MS.Method, MS.Condition");
             while (rs.next()) {
@@ -148,11 +139,36 @@ public class DatabaseConnection {
                 pokemonMovepool.add(temp);
             }
         } catch (SQLException e) { } 
-        finally {
-            closeDatabase();
-        }
+        finally { closeDatabase(); }
 
         return pokemonMovepool;
+    }
+
+    public static ArrayList<String> getEvolutionLineIDs(String ID, int gen) throws SQLException {
+        ArrayList<String> evolutionLine = new ArrayList<String>();
+        String tableName;
+        String baseForm;
+        int evolutionPaths;
+
+        if (gen == 1) tableName = "rbyStats";
+        else if (gen <= 5) tableName = "bwStats";
+        else return evolutionLine;
+
+        try {
+            loadDatabase();
+            rs = stat.executeQuery("SELECT BaseForm, EvolutionPaths FROM " + tableName + " WHERE ID = " + ID);
+            baseForm = rs.getString("BaseForm");
+            evolutionPaths = rs.getInt("EvolutionPaths");
+            do {
+                evolutionLine.add(baseForm);
+                rs = stat.executeQuery("SELECT EvolveTo, EvolutionPaths FROM " + tableName + " WHERE ID = " + baseForm);
+                baseForm = rs.getString("EvolveTo");
+                evolutionPaths = rs.getInt("EvolutionPaths");
+            } while (evolutionPaths != 0);
+        } catch (SQLException e) { }
+        finally { closeDatabase(); }
+
+        return evolutionLine;
     }
 
 }

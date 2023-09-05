@@ -3,6 +3,9 @@ package router;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -21,13 +24,17 @@ public class Route {
     private String pokemonID;       // ID of the Pokemon being routed
     private boolean evolution;      // True if evolution allowed in the route
     private ArrayList<String> evolutionIDs;     // list of IDs of all Pokemon in the evolution line
+    private String activePokemon;   // ID of the current Pokemon in the evolution line
     private Tab routeTab;
     private BorderPane tabLayout;
     private VBox moveListHolder;
     private HBox movepoolLabelAndBox;
     private Label movepoolLabel;
     private ArrayList<DisplayedMove> movepool;
+    private ObservableList<DisplayedMove> movesAcrossEvolutionLine;
+    private FilteredList<DisplayedMove> movesForOneEvolution;
     private TableView<DisplayedMove> moveTable;
+    private ComboBox<String> pokemonSelector;
 
     /*
      * things that need to be added to the route
@@ -73,6 +80,7 @@ public class Route {
 
     private void generateRouteLayout() {
         setGameGeneration();
+        activePokemon = pokemonID;
 
         evolution = true;
         if (evolution) {
@@ -88,10 +96,23 @@ public class Route {
         routeTab.setContent(tabLayout);
         tabLayout.setRight(moveListHolder);
 
+        movesAcrossEvolutionLine = FXCollections.observableArrayList();
+        
         try {
-            movepool = DatabaseConnection.getPokemonMovepool(pokemonID, generation);
+            for (String id : evolutionIDs) {
+                movepool = DatabaseConnection.getPokemonMovepool(id, generation);
+                System.out.println(movepool.size());
+                movepool.forEach(move -> {
+                    movesAcrossEvolutionLine.add(move);
+                });
+            }
         } catch (NumberFormatException e) { }
           catch (SQLException e) { }
+
+        movesForOneEvolution = new FilteredList<>(movesAcrossEvolutionLine, 
+                        i -> i.getPokemonID().equals(pokemonID) && ((i.getMethod() == "Level")
+                                                                    || (i.getMethod() == "TM")
+                                                                    || (i.getMethod() == "HM")));
 
         moveTable = new TableView<DisplayedMove>();
         
@@ -108,26 +129,32 @@ public class Route {
         moveTable.getColumns().add(moveColumn);
         moveTable.getColumns().add(typeColumn);
 
-        for (DisplayedMove item : movepool) {
-            if (item.getMethod() == "Level" || item.getMethod() == "TM" || item.getMethod() == "HM")
-                moveTable.getItems().add(item);
-        }
+        moveTable.setItems(movesForOneEvolution);
 
-        // this entire section needs to be commented, with variables renamed and a lot of code cleanup
-        ComboBox<String> comboBox = new ComboBox<String>();
+        pokemonSelector = new ComboBox<String>();
         for (String item : evolutionIDs) {
-            comboBox.getItems().add(item);
+            pokemonSelector.getItems().add(item);
         }
-        comboBox.getSelectionModel().selectFirst();
+        pokemonSelector.getSelectionModel().selectLast();
+
+        pokemonSelector.setOnAction(e -> changeActivePokemon(pokemonSelector.getValue()));
 
         movepoolLabel = new Label("Moves");
 
         movepoolLabelAndBox = new HBox(10);
-        movepoolLabelAndBox.getChildren().addAll(movepoolLabel, comboBox);
+        movepoolLabelAndBox.getChildren().addAll(movepoolLabel, pokemonSelector);
 
         moveListHolder.getChildren().add(movepoolLabelAndBox);
         moveListHolder.getChildren().add(moveTable);
 
+    }
+
+    private void changeActivePokemon(String newID) {
+        activePokemon = newID;
+        movesForOneEvolution.setPredicate(i -> i.getPokemonID().equals(activePokemon) 
+                                                && ((i.getMethod() == "Level")
+                                                    || (i.getMethod() == "TM")
+                                                    || (i.getMethod() == "HM")));
     }
 
     public String getGame() {

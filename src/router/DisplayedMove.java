@@ -8,6 +8,7 @@ public class DisplayedMove {
     private String power;
     private String accuracy;
     private int pp;
+    private String pokemonID;
 
     public DisplayedMove() {
         method = "Level";
@@ -17,10 +18,11 @@ public class DisplayedMove {
         power = "40";
         accuracy = "100";
         pp = 35;
+        pokemonID = "1";
     }
 
     public DisplayedMove(String method, String methodValue, String moveName,
-                            String type, String power, String accuracy, int pp) {
+                            String type, String power, String accuracy, int pp, String ID) {
         switch(method) {
             case "1":
                 this.method = "TM";
@@ -54,6 +56,7 @@ public class DisplayedMove {
         this.power = power;
         this.accuracy = accuracy;
         this.pp = pp;
+        this.pokemonID = ID;
     }
 
     public String getMethod() {
@@ -112,5 +115,12 @@ public class DisplayedMove {
         this.pp = pp;
     }
 
+    public String getPokemonID() {
+        return this.pokemonID;
+    }
+
+    public void setPokemonID(String pokemonID) {
+        this.pokemonID = pokemonID;
+    }
     
 }

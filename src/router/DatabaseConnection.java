@@ -134,8 +134,8 @@ public class DatabaseConnection {
                                                         Main.typeNames[rs.getInt("Type")], 
                                                         rs.getString("Power"), 
                                                         rs.getString("Accuracy"), 
-                                                        rs.getInt("PP"));
-
+                                                        rs.getInt("PP"),
+                                                        ID);
                 pokemonMovepool.add(temp);
             }
         } catch (SQLException e) { } 

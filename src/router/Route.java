@@ -40,6 +40,8 @@ public class Route {
     private TableView<DisplayedMove> moveTable;
     private ComboBox<String> pokemonSelector;
 
+    private int[] IVs = new int[6];
+
     /*
      * things that need to be added to the route
      * ArrayList or LinkedList of RouteEvent objects
@@ -135,6 +137,17 @@ public class Route {
     private void generateRouteLayout() {
         setGameGeneration();
         activePokemon = pokemonID;
+
+        // Set Pokémon IVs to maximum (can be changed later for different Hidden Power types)
+        if (generation <= 2) {
+            for (int i = 0; i < 6; i++) {
+                this.IVs[i] = 15;
+            }
+        }
+        else
+            for (int i = 0; i < 6; i++) {
+                this.IVs[i] = 31;
+        }
 
         // Get a list of IDs for any Pokémon in the evolution line
         evolution = true;
@@ -266,5 +279,13 @@ public class Route {
 
     public Tab getRouteTab() {
         return routeTab;
+    }
+
+    public int[] getIVs() {
+        return this.IVs;
+    }
+
+    public void setIVs(int[] IVs) {
+        this.IVs = IVs;
     }
 }

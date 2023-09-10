@@ -75,7 +75,8 @@ public class DisplayedMove {
     }
 
     // Getters and setters
-    
+    // These are very important to make the TableView work in the Route object 
+
     public String getMethod() {
         return method;
     }

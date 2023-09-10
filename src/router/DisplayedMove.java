@@ -10,6 +10,10 @@ public class DisplayedMove {
     private int pp;
     private String pokemonID;
 
+    /*
+     * Default constructor for a DisplayedMove object.
+     * By default it selects Pound as the move.
+     */
     public DisplayedMove() {
         method = "Level";
         methodValue = "1";
@@ -21,8 +25,12 @@ public class DisplayedMove {
         pokemonID = "1";
     }
 
+    /*
+     * Constructor for the DisplayedMove object
+     */
     public DisplayedMove(String method, String methodValue, String moveName,
                             String type, String power, String accuracy, int pp, String ID) {
+        // Store the method by which a move is learned
         switch(method) {
             case "1":
                 this.method = "TM";
@@ -45,20 +53,29 @@ public class DisplayedMove {
                 break;
         }
 
+        // Store a value for how the move is learned in text form to be displayed in a table
         if (this.method.equals("TM") || this.method.equals("HM")) {
             if (methodValue.length() == 1) this.methodValue = this.method + "0" + methodValue;
             else this.methodValue = this.method + methodValue;
         }
+        else if (this.method.equals("Tutor")) this.methodValue = "Tutor";
+        else if (this.method.equals("Transfer")) this.methodValue = "Trans.";
+        else if (this.method.equals("Event")) this.methodValue = "Event";
         else this.methodValue = methodValue;
         
+        // Store general move data
         this.moveName = moveName;
         this.type = type;
         this.power = power;
         this.accuracy = accuracy;
         this.pp = pp;
+
+        // Store the ID of the Pokémon that the move belongs to
         this.pokemonID = ID;
     }
 
+    // Getters and setters
+    
     public String getMethod() {
         return method;
     }

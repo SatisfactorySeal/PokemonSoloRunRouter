@@ -115,6 +115,10 @@ public class DatabaseConnection {
         return Integer.parseInt(result);
     }
 
+    /*
+     * Retrieve the movepool for a Pokemon with the given ID and generation (gen)
+     * At the moment it only grabs data from Red and Blue so I can get that up and running
+     */
     public static ArrayList<DisplayedMove> getPokemonMovepool(String ID, int gen) throws SQLException {
         ArrayList<DisplayedMove> pokemonMovepool = new ArrayList<DisplayedMove>();
 
@@ -126,8 +130,11 @@ public class DatabaseConnection {
             loadDatabase();
             rs = stat.executeQuery("SELECT * FROM " + movesetTableName + " AS MS INNER JOIN " 
                                     + moveTableName + " AS M ON MS.MoveID = M.ID "
-                                    + "WHERE MS.PokemonID = " + ID + " ORDER BY MS.Method, MS.Condition");
+                                    + "WHERE MS.PokemonID = " + ID 
+                                    + " AND MS.Games LIKE '%RB%'" 
+                                    + " ORDER BY MS.Method, MS.Condition");
             while (rs.next()) {
+                // Generate a DisplayedMove object to add to the movepool list and add it to the movepool ArrayList
                 DisplayedMove temp = new DisplayedMove(rs.getString("Method"), 
                                                         rs.getString("Condition"), 
                                                         rs.getString("Move"), 
@@ -144,6 +151,11 @@ public class DatabaseConnection {
         return pokemonMovepool;
     }
 
+    /*
+     * Retrieve all Pokémon in the evolution path by following the IDs of evolution lines through the database
+     * Currently only works for Pokémon with 1 evolution path and only for gen 1 games
+     * This means that Eeveelutions are not functional
+     */
     public static ArrayList<String> getEvolutionLineIDs(String ID, int gen) throws SQLException {
         ArrayList<String> evolutionLine = new ArrayList<String>();
         String tableName;

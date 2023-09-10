@@ -25,13 +25,16 @@ public class Main extends Application {
     final static String[] typeNames = {"nullType", "Bug", "Dragon", "Electric", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", 
                                 "Ice", "Normal", "Poison", "Psychic", "Rock", "Water", "Dark", "Steel", "Fairy"};
     Map<Tab, Route> routeTabMap = new HashMap<Tab, Route>();
+    Stage window;
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage window) throws Exception {
+    public void start(Stage primaryStage) throws Exception {
+        window = primaryStage;
+        
         window.setTitle("Pokémon Solo Run Router");
         window.setMinHeight(300);
         window.setMinWidth(600);
